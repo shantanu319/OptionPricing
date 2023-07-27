@@ -4,12 +4,12 @@ This repository contains a comprehensive option pricing project that implements 
 
 The primary goal of this project is to provide a clear and interactive way of understanding and applying these fundamental option pricing models. All methods are implemented in Python, incorporating its efficient scientific libraries, to facilitate extensive and easy computations.
 
-Features
-Binomial Option Pricing Model: This model is a simple yet powerful technique used for valuing options that are derivative securities. It uses a discrete-time model of the varying price over time of the underlying financial instrument.
+##Features
+1. **Binomial Option Pricing Model**: This model is a simple yet powerful technique used for valuing options that are derivative securities. It uses a discrete-time model of the varying price over time of the underlying financial instrument.
 
-Black-Scholes Pricing Model: This is a mathematical model for pricing an options contract. In particular, it calculates the theoretical price of European put and call options, without considering dividends paid out during the option's lifetime.
+2. **Black-Scholes Pricing Model**: This is a mathematical model for pricing an options contract. In particular, it calculates the theoretical price of European put and call options, without considering dividends paid out during the option's lifetime.
 
-Monte Carlo Simulation: This approach leverages the power of random sampling to compute the option price. Monte Carlo methods are particularly useful for options pricing when there are multiple sources of uncertainty or if the underlying instrument has complicated features.
+3. **Monte Carlo Simulation**: This approach leverages the power of random sampling to compute the option price. Monte Carlo methods are particularly useful for options pricing when there are multiple sources of uncertainty or if the underlying instrument has complicated features.
 
 The project also includes comparative studies across these models to aid users in understanding their respective strengths, weaknesses, and domains of most effective application.
 
