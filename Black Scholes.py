@@ -1,52 +1,69 @@
 """
-The Black-Scholes model makes certain assumptions:
+Sources:
+https://economictimes.indiatimes.com/definition/black-scholes-model
+https://www.albany.edu/~bd445/Economics_802_Financial_Economics_Slides_Fall_2013/Black-Scholes_Option_Pricing.pdf
+https://www.cs.princeton.edu/courses/archive/fall09/cos323/papers/black_scholes73.pdf
+https://medium.com/swlh/calculating-option-premiums-using-the-black-scholes-model-in-python-e9ed227afbee
+https://medium.datadriveninvestor.com/black-scholes-and-option-greeks-in-python-6038f184801e
+https://cklixx.people.wm.edu/teaching/math400/Chen-paper2.pdf
 
-No dividends are paid out during the life of the option.
-Markets are random (i.e., market movements cannot be predicted).
-There are no transaction costs in buying the option.
-The risk-free rate and volatility of the underlying asset are known and constant.
-The returns of the underlying asset are normally distributed.
-The option is European and can only be exercised at expiration.
-
-The Black-Scholes call option formula is calculated by multiplying the stock price by the cumulative standard normal
-probability distribution function. Thereafter, the net present value (NPV) of the strike price multiplied by the
-cumulative standard normal distribution is subtracted from the resulting value of the previous calculation.
-
-Based off of:
-https://investopedia.com/terms/b/blackscholes.asp#:~:text=The%20Black-Scholes%20model%2C%20aka,free%20rate%2C%20and%20the%20volatility.
+Pitfalls:
+https://www.investopedia.com/articles/active-trading/041015/how-circumvent-limitations-blackscholes-model.asp
 
 """
-from math import log, sqrt, pi, exp, e
-from scipy.stats import norm
-from datetime import datetime, date
+import math
 import numpy as np
-import pandas as pd
-from pandas import DataFrame
+from scipy.stats import lognorm
 
 
-class BlackScholesPricing():
+class BlackScholesPricing:
 
-    def __init__(self, volatility, spotprice, strike, timetoMaturity, riskFreeRate):
-        self.V = volatility
-        self.S = spotprice
-        self.str = strike
-        self.T = timetoMaturity
-        self.R = riskFreeRate
+    def __init__(self, stock_price, strike_price, risk_free_rate, ttexpiration, ivol):
+        self.S = stock_price
+        self.K = strike_price
+        self.R = risk_free_rate
+        self.T = ttexpiration / 365  # to be expressed in years
+        self.sigma = ivol
 
-    # sigma is standard dev of log returns or = volatility
-    def d1(self):
-        return np.log(self.S / self.str) + ((self.R + (np.square(self.V) / 2)) * self.T) / (self.V * np.sqrt(self.T))
+    # lognormal distribution function
+    def N(self, x):
+        if x < 0:
+            return 0
+        else:
+            return 1 - math.exp(-x ** 2 / 2) / math.sqrt(2 * math.pi)
 
-    def d2(self):
-        return self.d1() - (self.V * self.T)
+    # for european options
+    def euroCallPrice(self):
+        t = self.T
+        k = self.K
+        s = self.S
+        r = self.R
+        sig = self.sigma
 
-    def callPrice(self):
-        return (self.S * norm.cdf(self.d1())) - (self.str * (e ** (-self.R * self.T) * norm.cdf(self.d2())))
+        d1 = ((math.log(s / k, math.e)) + (r + ((pow(sig, 2)) / 2) * t)) / (sig * (math.sqrt(t)))
+        d2 = d1 - (sig * math.sqrt(t))
 
-    def putPrice(self):
-        return (self.S * e ** (-self.R * self.T)) - self.str + self.callPrice()
+        Nd1 = self.N(d1)
+        Nd2 = self.N(d2)
+
+        # 0.728 and 0.584 are test values of Nd1 and Nd2 from a paper provided by Ruo Chen
+        return (0.728 * s) - (0.584 * k * pow(math.e, -1 * r * t))
+
+    # based on put-call parity
+    def euroPutPrice(self):
+        callPrice = self.euroCallPrice()
+        return callPrice + (self.K / (math.pow(1 + self.R, self.T))) - self.S
 
 
-bs1 = BlackScholesPricing(0.2, 25, 15, 3.5, 0.05)
-print(bs1.callPrice())
-print(bs1.putPrice())
+"""c1 = BlackScholesPricing(117.25, 100, 0.085, 92, 0.8445)
+print(c1.euroCallPrice())
+print(c1.euroPutPrice())
+"""
+
+"""
+Cox-Ross-Rubenstein for pricing American Options
+https://xilinx.github.io/Vitis_Libraries/quantitative_finance/2019.2/methods/bt-crr.html
+"""
+
+
+
